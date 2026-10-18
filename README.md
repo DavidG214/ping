@@ -8,9 +8,25 @@ The central question is: **How can someone ask whether another person is safe wh
 
 **Repository:** [DavidG214/ping](https://github.com/DavidG214/ping). [Verified release CI](https://github.com/DavidG214/ping/actions/runs/39155143319) passed on October 18, 2026.
 
-**Current working copy:** `Projects/ping-tablet`; the earlier `Projects/ping` source is preserved. The latest interface has a three-action home, compact resident flow, four staff tasks and a list-first help-desk directory. This is an educational fictional-data prototype, not a deployed emergency service.
+## Try it in five minutes
 
-**Local preview:** run `npm run build` then `npm run preview:local`, and open **http://localhost:41938**. It uses the existing local fictional `ping` database without resetting it and listens only on loopback. The dedicated `ping_test` database remains separate. See [verification evidence](docs/verification.md) for dated test results and [process handoff](docs/process-handoff.md) for the documented design/development history and AI use.
+No installation or account creation needed. Use fictional data only. Keep the walkthrough in **one browser tab** so each role shares your demo workspace. To switch roles, reopen the [demo guide](https://ping-davidg214.onrender.com/demo) in that same tab; **do not reset** between steps.
+
+| Step | What to do | What should happen |
+|---|---|---|
+| 1. Start | Open the live app → **Try the demo → Start my demo**. | **Choose a fictional role** appears. You have your own demo workspace. |
+| 2. Route | Choose **Staff B**. Under **Looking for Jordan Rivera**, select **Jordan Rivera · 30–44**, then **Route possible match**. | A confirmation says the request is now available. |
+| 3. Reply | Return to the demo guide → **Sign in as Jordan**. Credentials fill automatically. Choose **Yes, this device is shared** and **I'll check PING myself**, then **Open my pings**. Choose **Reply**, type **I'm safe**, and select **Preview my reply**. Leave shelter sharing unchecked. | The preview shows your exact message and **No shelter will be shared.** |
+| 4. Send | Select **Send this reply**, then **Done—sign out**. Wait for the login screen before switching roles. | You see **Reply sent** before signing out; the login fields are cleared. |
+| 5. Check | Return to the demo guide → **Sign in as Alex**. Answer both login questions, open your pings, then select **Requests I've made**. | Alex sees **I'm safe** and **No shelter was shared with this reply.** |
+
+**Optional: test separate shelter consent.** Return as Jordan → **Share a shelter (optional)** → select **Lantern Center** → check **I am currently at this shelter** → **Preview shelter disclosure** → **Share this shelter**. Return as Alex and open **Requests I've made**: the reply now shows **Shared by the sender: Lantern Center**. It should appear only after that separate approval.
+
+**Try again:** select **Reset my demo** in the demo guide, or use a fresh private browser window. Reset only replaces your fictional workspace. If a shared session expires while you are reading, return to the guide and sign in again; your submitted reply remains saved. Use **Sign out** when finished.
+
+**Live walkthrough checked October 18:** Playwright completed the main example twice in fresh sessions, at desktop and tablet viewport sizes. All four public-site checks passed, including private decline/wrong-person decisions and the directory with map tiles blocked. These are Chromium checks, not physical iPad testing.
+
+The rest of this README explains the purpose, features, design choices, and implementation in depth. [Verification evidence](docs/verification.md) records observed checks; [project reflection](docs/process-handoff.md) explains the development process and AI use.
 
 ## Contents
 
@@ -55,14 +71,17 @@ Residents at hotels or relatives' homes can check an existing account or visit a
 
 ## Try the fictional story
 
-1. Open **Demo guide → Start my demo**. Each browser gets a separate persisted workspace, expiring after 24 hours.
-2. Enter **Staff B**. Find Jordan Rivera's request, compare the local Jordan candidate, and route the possible match.
-3. Return to the demo guide and **Sign in as Jordan**. The shortcut fills fictional credentials, including PIN `001234`; answer both login questions.
-4. Select **Reply**, enter **I'm safe**, preview the exact content and send, leaving shelter sharing off. The confirmation offers **Done—sign out**.
-5. Sign in as Alex and open **Requests I've made**. The reply has no recipient shelter or routing metadata.
-6. Return as Jordan and select **Share a shelter (optional)**. Choose a shelter, confirm current presence, review the separate disclosure and explicitly share it.
-7. Sam demonstrates **This isn't me**; Taylor demonstrates **Don't respond**. Casey and the safeguarding role demonstrate restricted review.
-8. Staff A can also register a fictional resident, print an account-code card, open a local case, and submit a new contact request.
+Start with the [five-minute walkthrough](#try-it-in-five-minutes) above. Each demo workspace persists for up to 24 hours. Resident shortcuts fill fictional credentials, including demo PIN `001234`; both login questions still require a choice.
+
+For a few additional checks, return to the demo guide and try:
+
+| Role or screen | Try | Expected result |
+|---|---|---|
+| **Sam** | **This isn't me → Confirm** | The ping closes privately; Alex is not told about the wrong-person decision. |
+| **Taylor** | **Don't respond → Confirm** | The ping closes privately; Alex is not told it was declined. |
+| **Casey / Safeguarding staff** | Compare the restricted resident view with the assigned referral panel | Safeguarding acknowledgment stays separate from ordinary reply/location permission. |
+| **Staff A** | **Register resident**, using a fictional adult and a six-digit PIN | An account-code card appears without the PIN. Local cases support creating another contact request. |
+| **Help desks** | Open the directory | Three fictional desks have readable names and addresses, even if the map cannot load. |
 
 Demo role controls are available only in demo mode and only for that browser's fictional workspace. They create server-scoped sessions; they cannot select arbitrary staff IDs, shelters, workspaces, or real accounts. All authorization still runs on the server. Do not enter real disaster or personal data.
 
@@ -296,6 +315,14 @@ The verification strategy has three layers: API tests exercise real database/aut
 
 See [verification evidence](docs/verification.md) for observed results, failures/fixes, and unverified boundaries.
 
+To repeat the public demo checks explicitly after installing dependencies and Chromium:
+
+```sh
+npx playwright test --config playwright.live.config.ts
+```
+
+This separate configuration runs against the live URL, creates four isolated fictional workspaces, and does not use database credentials or the local test-server reset. It checks the walkthrough at desktop and tablet sizes, private decisions, reload persistence, sign-out, and the map-failure fallback. It is an opt-in smoke suite, separate from the 29 local/CI browser scenarios. Avoid repeated rapid runs: public demo creation is limited to 10 starts per IP per hour. Screenshots are saved under ignored `test-results/live/`.
+
 ## Deployment
 
 See [deployment instructions](docs/deployment.md). `render.yaml` supplies a single web service; Neon supplies persistent PostgreSQL. Never place SQLite or persistent records on Render's ephemeral filesystem.
@@ -308,6 +335,6 @@ OpenStreetMap attribution is displayed on the map. Tiles are best-effort and mus
 
 David supplied product decisions and the detailed privacy-first brief. Codex helped plan, implement, create fictional fixtures, write documentation and run tests. [AI-use log](docs/ai-use.md) and [decision log](docs/decisions.md) distinguish actual work and verification. No user research, clinical/legal validation, disaster-scale load test, or production security certification has occurred.
 
-The [process handoff](docs/process-handoff.md) is a longer account for combining with the original brainstorming chat. It includes a draft first-person project explanation, the recorded development timeline, available prompt excerpts, AI contributions, test-driven fixes and remaining work. It explicitly marks the missing original chat/rubric rather than reconstructing them as facts.
+The [project reflection](docs/process-handoff.md) is a longer first-person account for combining with the original brainstorming chat. It explains David's product direction, privacy choices, scope discipline, interface iteration, and requests for deeper testing, alongside AI's implementation contributions. It summarizes the prompting approach without reproducing casual chat transcripts and identifies the context that belongs in the separate brainstorming record.
 
 This is an educational prototype, not a production disaster-response system. It depends on honest staff intake, shared-device discipline, connectivity, database access and limited free hosting. Safeguarding and recovery require an organization's restricted human process. The public deployment and release CI were checked; actual shared tablets, Safari/Firefox, screen readers, real-world safeguarding and disaster-scale demand remain unverified.

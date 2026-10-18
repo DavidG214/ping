@@ -1,6 +1,26 @@
 # Verification evidence
 
-## October 18, 2026 — public release (latest)
+## October 18, 2026 — repeated live Playwright walkthrough (latest)
+
+At David's request, Codex followed the simplified README example against **https://ping-davidg214.onrender.com**, using the opt-in `playwright.live.config.ts` and `tests/live/reviewer.spec.ts`. The deployed application was unchanged from the public release below.
+
+**Final run: 4 passed, 0 failed in 30.3 seconds.** `npm run check` also passed with the new test code. The full local API/browser suites were not rerun for this documentation and live-test addition; their separate release evidence follows below.
+
+| Check | Desktop Chromium (1440×1000) | Tablet viewport Chromium (1024×768) |
+|---|---|---|
+| Staff B routes Jordan; independent unselected login choices; exact reply preview; explicit send; Alex receives text without shelter | Passed | Passed |
+| Separate shelter preview requires current-presence confirmation; Alex sees the approved shelter; reply and shelter survive reload | Passed | Passed |
+| Completed sign-out clears credentials; back navigation does not restore the private reply | Passed | Passed |
+| Sam's wrong-person choice and Taylor's decline leave Alex's requester response unchanged | Passed | Passed |
+| Directory retains all three desks with map tiles blocked and no horizontal overflow at 320px | Passed | Passed |
+
+Each test used a fresh browser context and its own fictional workspace. The suite contains no database connection or test-server reset. It writes only fictional records through the live demo, signs out at the end of each successful scenario, and retains screenshots under ignored `test-results/live/`. No uncaught page errors occurred in either full reply/shelter walkthrough. Tablet checks use viewport dimensions, not iPad hardware or Safari.
+
+The first launch could not access the installed Chromium executable from the sandbox; the authorized elevated run used the existing installation. An initial run then passed three checks but failed the tablet walkthrough because the new test asserted an empty login field while it was still hidden behind the sign-out curtain, then forced navigation before logout completed. The test now waits for the **visible login heading** before navigating. All four checks passed together after that correction. No application fix or deployment was needed. The known limitation around interrupting logout with forced browser navigation remains documented in the earlier shared-device evidence.
+
+Run again with `npx playwright test --config playwright.live.config.ts`. This is an opt-in public smoke test, not part of the default local/CI suite. Each full run creates four demos; public creation is limited to 10 per IP per hour.
+
+## October 18, 2026 — public release
 
 - **Live app:** [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com).
 - **Public source:** [DavidG214/ping](https://github.com/DavidG214/ping).

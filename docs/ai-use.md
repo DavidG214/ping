@@ -1,26 +1,39 @@
-# AI-use log
+# How AI was used in PING
 
-David supplied the product purpose, privacy decisions, scope, failure cases and acceptance criteria. Codex proposed the approved architecture and implementation order. Codex is implementing code, fictional fixtures, tests, UI and documentation. No user research has been conducted. Verification results will be recorded as commands and observed outcomes, not attributed to David unless he performs them.
+**Updated October 18, 2026.** The longer [project reflection](process-handoff.md) explains the decisions and development process in David's voice. This log summarizes the contributions and recorded checkpoints.
 
-- 2026-10-16: inspected installed skills/tools and official hosting documentation; produced the implementation plan.
-- 2026-10-16: began implementation after David approved it. Hosting access remains pending. No paid services or public publishing performed.
-- 2026-10-16: Codex implemented frontend/backend/database flows and ran local PostgreSQL integration and Chromium browser tests. Test failures led to corrected form accessibility and explicit demo fixture identity. Codex generated screenshots from the actual local app. An independent Codex reviewer was requested for final code and privacy review; this is AI review, not independent human certification.
-- 2026-10-16: The independent AI reviewer identified a logout/save race, missing requester assistance for replies, and failed-card recovery. Codex reproduced these failures, implemented fixes and reran the build, 14 API tests and seven browser scenarios successfully. No second independent review is claimed. Hosting and public GitHub verification remain pending.
-# October 18 shared-tablet implementation
+## David's direction
 
-Codex implemented the supplied verification-first simplification plan in a separate `ping-tablet` copy, preserving the original untracked project. It reproduced the login-throttle and assistance-grant defects before fixing them, added API/browser regressions, simplified the existing screens, and captured new screenshots. One independent AI reviewer identified two interface/state defects, both fixed with regressions. No public publication or physical-device/screen-reader validation was performed. Detailed current results are in `verification.md`.
+David supplied and refined PING's purpose, privacy priorities, access constraints, and scope. He kept the project focused on a private contact request in which the recipient controls the response and any shelter disclosure. He chose a simpler task-focused interface for shared tablets, phones, and computers, and asked for broader feature testing and whole-project review before publication.
 
-## October 18 expanded review and documentation
+His strongest contribution was carrying those priorities through the project. Privacy shaped the workflow; shared-device use shaped the interface; testing shaped the release standard. He also asked for documentation that explained the reasoning and made AI's contribution clear. After returning for release, he signed in to the hosting services and authorized the prepared publication.
 
-David asked Codex to test the remaining features, review the whole application, fully explain the project and rationale in README, and prepare a long process summary to combine with a separate brainstorming chat. He deferred publication until his return.
+## Codex's contribution
 
-Codex added feature/browser and API boundary checks and requested a fresh read-only whole-project AI review. It reproduced and fixed an assistance shelter-update ordering issue and stale cross-tab CSRF state. It exposed the existing safeguarding referral reference and documented the remaining absence of operational person/intake linkage without broadening the existing API projection. Final observed checks: 24 API tests, 28 Chromium scenarios, build passed; npm audit reported zero known vulnerabilities.
+Codex proposed the approved architecture and implementation order, wrote substantial application and test code, created fictional fixtures, debugged failures, revised the interface, drafted documentation, and configured and checked the deployment. Separate AI reviewer contexts examined implementation details and reported findings. These were AI reviews, not independent human certification.
 
-Codex expanded README and wrote `docs/process-handoff.md`, distinguishing visible exact prompt excerpts, historical project logs, interpretation of design rationale and missing original brainstorming/rubric context. The first-person passage is an AI-assisted draft for David's review, not a claim that Codex recovered his separate chat or personal experiences. No real user research, publication or paid services occurred.
+The tests and technical investigations below were performed by Codex. David's role was directing the work, making product decisions, requesting deeper verification, and authorizing release; this record does not attribute AI-written code or AI-run checks to him as manual work.
 
-## October 18 release work
+AI is used in development, not inside PING to identify residents, match people, or authorize disclosures. No real personal records, user interviews, or field research were used in the demonstration.
 
-David returned and authorized proceeding with the prepared publication after signing in to Render and Neon. Codex published the source repository, configured free-tier hosting, and used the first Linux CI failure to reproduce a session-renewal login-form remount. A subsequent controlled cross-tab test exposed premature session refresh during logout. Both timing defects received failing-then-passing regressions; a registration test was also corrected to wait for logout completion. Deployment and final CI results are tracked separately in `docs/verification.md`, rather than inferred from configuration alone.
+## Development checkpoints
 
-Final observed release checks: Linux CI passed 24 API tests, 29 Chromium scenarios and the build. The public Render app passed API consent/isolation/session checks and a Chrome Staff B → Jordan → Alex reply walkthrough. A deliberate Render service restart preserved a personal-device session and its approved reply/location data. Both hosting services remained on their Free plans; actual shared-tablet hardware and screen readers were not tested.
+| Stage | Direction and work | Recorded result |
+|---|---|---|
+| October 16: planning and initial build | David approved the plan. Codex implemented frontend/backend/database flows and reviewed privacy and failure cases. | Build, 14 API tests, and seven Chromium scenarios passed after fixes to demo identity, accessibility, logout handling, requester assistance, and account-card recovery. |
+| October 18: shared-tablet revision | David selected the simpler home and retained the existing feature/permission scope. Codex reproduced login-throttle and assistance-grant defects, fixed them, revised the screens, and addressed further AI review findings. | Build, 19 API tests, and 22 Chromium scenarios passed; screenshots captured. |
+| October 18: broader review | David requested testing of the other features, whole-project review, a detailed README, and a process summary. Codex expanded coverage and fixed assistance-update ordering and cross-tab session issues. | Build, 24 API tests, and 28 Chromium scenarios passed locally. Local dependency audit reported zero known vulnerabilities. The safeguarding intake-linkage limitation remained documented. |
+| October 18: publication | David returned, signed in to Render and Neon, and authorized publication. Codex published the source, configured free hosting, and fixed timing issues exposed during release checks. | Final Linux CI passed the build, 24 API tests, and 29 Chromium scenarios. Public API and Chrome walkthrough checks passed. A Render service restart retained the checked session and approved reply/shelter data. |
+
+These are dated checkpoints, not cumulative test totals. [Verification evidence](verification.md) records the failures, fixes, release links, and remaining limits.
+
+After publication, David asked for a more natural process reflection that emphasized his contributions, an in-depth README with a simpler example, and repeated live Playwright checks. Codex removed the chat quotations, revised the attribution and walkthrough, and added an opt-in live suite. Its final run passed all four checks, including the complete reply/shelter example in fresh desktop and tablet-sized sessions. An initial automation timing error was corrected to wait for visible sign-out completion; no application change was needed.
+
+## What the collaboration shows
+
+David gave the agent a consistent product direction and kept refining what a successful result should look like. His requests connected features to constraints and asked for checks beyond the first happy path. That combination helped the project stay focused while uncovering problems that initial testing missed.
+
+The [process reflection](process-handoff.md) paraphrases that prompting approach without reproducing casual chat transcripts. It draws from the available project record; the separate original brainstorming chat can add the earlier exploration and personal motivation.
+
+PING remains a fictional educational prototype. Physical shared-tablet hardware, screen readers, other browser engines, disaster-scale demand, and real-world safeguarding have not been validated. Public deployment checks establish specific observed behavior, not production certification.
 

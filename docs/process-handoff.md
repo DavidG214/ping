@@ -1,194 +1,148 @@
-# PING: project process and AI-use handoff
+# PING: how I built it and used AI
 
-**Prepared October 18, 2026.** This document is intended to be pasted into the separate chat that contains the original brainstorming process. It records what the implementation history actually establishes, so the brainstorming and build phases can be combined without inventing missing steps.
+**October 18, 2026 · Project reflection and implementation record**
 
-## How to use this with the brainstorming chat
+## The idea I kept coming back to
 
-Treat this as the implementation-side record. Combine it with the original ideas, alternatives, personal motivation and exact early prompts already in that chat. Preserve the distinction between what I decided, what AI proposed, what was implemented, and what was verified.
+I built PING around a question that sounds simple until you think through the details: how can someone ask whether another person is safe while leaving that person in control of the answer?
 
-The current implementation agent could read the project files and the conversation that supplied the shared-tablet plan. It did **not** have the complete separate brainstorming conversation or the complete original challenge rubric. The repository describes the project as the **DALI Fullstack Challenge 26F**, and I said the application asks for process documentation. Exact rubric language, the full original brainstorming sequence and my personal reasons beyond the recorded design constraints should come from that other chat or from me.
+The result is a fictional contact-request app for the DALI Fullstack Challenge 26F. Participating help desks can help someone submit a request, staff at another desk can review a possible match, and the recipient decides whether to respond. They can send a short reply, choose not to respond, report a wrong-person match, or separately share a shelter.
 
-The first-person project summary below is a draft for me to review. It is based on documented goals and decisions, not on invented interviews, personal experiences or field research.
+What I brought to this project was a clear sense of what the app needed to respect. Someone looking for you does not automatically get to know where you are. A similar name does not prove identity. Using a shared tablet does not mean you want a volunteer reading your messages. Those distinctions became actual requirements for the product.
 
-## Project summary in my voice
+I used AI extensively to turn that direction into a working application. It helped with planning, wrote substantial code and tests, debugged failures, reviewed the implementation, and drafted documentation. My contribution was setting the direction, refining the constraints, making product choices, and continuing to ask whether the result actually worked for the situation I had in mind.
 
-I built PING to explore how people who have been separated can ask for contact without requiring the other person to reveal where they are or even respond. The idea is a private contact-request system supported by participating help desks. A person can ask a volunteer to submit a short message and some identifying clues. Staff at another desk can compare those clues with their own local residents and route a possible match. The recipient then decides whether to reply, decline, report a wrong-person match or separately share a shelter.
+## What I think I did well
 
-I wanted the workflow to account for people who might not have access to their usual phone, email or private computer. That is why the prototype uses an account code and a resident-chosen PIN, supports shared devices, and lets people ask for volunteer help checking replies. I also wanted those choices to stay independent: using a shared tablet does not automatically mean someone needs assistance, and having a personal device does not mean they do not.
+### I thought about the person using it
 
-Privacy affected the basic product design rather than being added as a final setting. A possible match is not verified identity. A requester's concern does not authorize disclosure. A help-desk affiliation does not establish where someone is staying. A reply does not imply permission to share a shelter. Those distinctions shaped the screens, the API projections and the tests.
+I wanted the app to account for someone who might not have their usual phone, email account, or private computer. That changed the design from the beginning. The prototype uses an account code and a resident-chosen PIN, supports shared devices, and offers help checking replies.
 
-I kept the prototype narrow. It is not a public people map, an automated identity matcher, a full chat service or an emergency-response platform. It demonstrates one private request, one approved reply, optional separate shelter sharing, staff assistance and restricted handling of sensitive cases. All examples are fictional.
+I also kept device privacy and assistance as separate choices. A person with their own phone might still need help. A person on a shared tablet might want to check independently. Giving people both choices makes the workflow more respectful and avoids making a personal decision for them.
 
-I used AI extensively during development, including planning, implementation, tests, debugging, interface revisions, code review and documentation. The application itself does not use an AI model to match people or decide what information can be released. My role was to supply and refine the product goals, constraints and direction, approve the implementation plan, request a simpler shared-tablet experience, and decide when the concrete result is ready to publish.
+That is one of the stronger parts of the project: I kept asking what an assumption would mean for the person on the other side of the screen.
 
-## 1. From concept to a bounded product
+### I made privacy part of how the app works
 
-The earliest planning available in the repository is the approved implementation plan dated October 16. It records a fictional-data prototype with a React/Vite browser, an Express API, TypeScript, PostgreSQL, Zod validation, Drizzle SQL migrations and a Leaflet help-desk map. The original in-chat brief is referenced in those files but is not reproduced in full here.
+I treated consent as something the workflow had to enforce. Replying and sharing a shelter are separate decisions. The recipient sees an exact preview before sending. Declining or reporting a wrong-person match does not tell the requester what happened privately.
 
-The core scope was a shelter-to-shelter contact cycle with explicit consent. A requester at one desk submits a request. Staff at a second desk review limited clues and choose a possible local candidate. That resident receives a private ping and personally approves any response. The requester sees only an acknowledgment, a waiting state or an approved response; they do not see matching progress, reading activity or private refusal decisions.
+These choices gave the implementation something concrete to follow and the tests something concrete to check. The standard was whether the app actually withheld information until the person approved it.
 
-The plan explicitly constrained sensitive situations. Children, unknown ages and recorded consent concerns cannot use ordinary delivery or disclosure. A claimed family relationship or matching clue cannot override that restriction. Safeguarding was kept as a restricted referral/acknowledgment example, with real safeguarding decisions outside the prototype.
+### I kept the project focused
 
-The important product decisions were therefore about boundaries as much as features: who can see a record, which information is projected to a requester, how consent is captured, what happens when a match is wrong, and what a shared device must forget.
+There were plenty of ways this idea could have expanded: automated matching, a public people directory, a full messaging platform, notifications, or an administration system. I kept the work centered on a smaller contact cycle that could be implemented and examined properly.
 
-## 2. Why the implementation took this shape
+That decision helped the project reach a working release. It also made the tradeoffs easier to explain. Manual matching takes staff time. One reply is limited. Code/PIN access has recovery challenges. I could acknowledge those limits while still demonstrating the core idea.
 
-These are the reasons supported by the plans, code and decision logs:
+### I was willing to simplify something that was already built
 
-- **Code/PIN login:** supports a fictional resident who cannot rely on email, a phone number or government ID. It also creates a recovery problem, which the prototype deliberately does not pretend to solve automatically.
-- **Manual local matching:** makes uncertainty visible and limits profile access. It costs volunteer time and does not prove identity.
-- **One reply:** keeps the initial communication task understandable and avoids claiming to implement a complete moderated chat system.
-- **Exact preview before sending:** gives the recipient a concrete review step. The server signs the approved content rather than trusting a mutable browser summary.
-- **Separate shelter consent:** protects the difference between being willing to reply and being willing to disclose a location. Shelter information remains self-reported.
-- **Two independent login questions:** separates device privacy from the need for help checking replies.
-- **Temporary assistance claims:** lets a volunteer deliver a specific message without silently acquiring permanent case/card access.
-- **Same-origin browser/API:** makes the application boundary easier to inspect and keeps session/cookie/CSRF behavior in one origin.
-- **Real PostgreSQL:** permits meaningful checks of persistence, relational constraints, transactions, concurrent claims and duplicate retries.
-- **Memory-only drafts:** preserves unfinished work during ordinary in-app navigation while clearing it on logout, expiry or account changes. A full page reload also clears drafts.
-- **An independent text directory:** keeps desk information available when external map tiles fail.
+After the initial implementation, I chose a simpler home for tablets, phones, and computers. The main actions became checking pings, requesting help, and finding a help desk. Promotional content gave way to the tasks people came to do.
 
-These choices were not established by user interviews or disaster deployment. They are documented engineering/product decisions for a constrained challenge prototype.
+I also asked for a clearer resident flow: read the message, choose Reply, review exactly what will be sent, send it, and have an obvious way to sign out. Optional shelter sharing comes after a deliberate choice. Those changes made the interface follow the privacy decisions more closely.
 
-## 3. Initial implementation and review — October 16
+### I asked for more than a working-looking demo
 
-The repository's earlier logs describe a complete local frontend/backend/database implementation. The local environment used a project-local native PostgreSQL server while managed hosting access was pending. That meant database behavior could be tested without claiming a live public deployment.
+Even after the initial build and testing, I asked for the other features to be checked and the whole project to be reviewed. That mattered. The broader work found problems in assistance updates and cross-tab sessions that a single successful walkthrough would not have caught. Release checks later exposed additional timing problems.
 
-The recorded initial build included resident registration, code-only account cards, code/PIN authentication, per-session device settings, persistent assistance preferences, manual matching, private delivery, signed reply/location previews, silent decline, wrong-person exclusion, safeguarding restrictions, help desks and isolated fictional reviewer workspaces.
+I did not personally discover or repair each of those bugs; AI performed that implementation and verification work. My contribution was asking for the deeper pass and making reliability part of the definition of finished.
 
-The historical verification document reports **14 API tests and seven Chromium scenarios passing** after review fixes. It also records several useful examples of AI-assisted debugging:
+### I followed through on the explanation and release
 
-- A duplicate-name test exposed that the demo guide could confuse a newly registered resident with a seeded fictional identity. An explicit fixture key replaced name-based identification.
-- Browser checks exposed label/help-text and reusable selector accessibility issues; explicit associations were added.
-- Review found that a delayed session-store save could recreate a session after logout. Durable revoked-session records were added so the old cookie still could not authenticate.
-- Assistance originally needed to cover approved replies to the requester as well as incoming pings. Queueing and later shelter-update behavior were extended.
-- A successful registration followed by a failed account-card fetch could strand the user or encourage duplicate registration. The app retained the created account and added card recovery.
-- Unused migration-generation tooling brought unnecessary dependency findings; it was removed while checked-in Drizzle-run SQL migrations remained.
+I wanted the README to explain what PING does, why it exists, and why it was built this way. I also asked for a separate account of how I used AI so I could connect the implementation to my earlier brainstorming process.
 
-These are historical observations from the project records. The later implementation pass reran the baseline rather than treating the old results as current proof.
+I returned for publication, signed in to the hosting services, and authorized the prepared release. The project now has a public repository and a live fictional demo. Taking it through documentation, review, and deployment made the result much easier for someone else to try and evaluate.
 
-## 4. Shared-tablet simplification — October 18
+## How the main design choices fit together
 
-The next supplied plan was titled **“PING: verify first, simplify for a shared tablet.”** It said to replace the promotional landing page with one task-focused home across tablets, phones and computers, preserve existing permissions/features, and avoid an organization-admin system or new communication features.
+The app starts with a request, not a guarantee of contact. Staff see limited clues and review possible local candidates. A match remains uncertain, and the recipient keeps control of any response.
 
-The brief emphasized verification before visual redesign. It identified two backend issues: successful staff sign-ins counted toward an account throttle, and claiming a reply-assistance task could grant permanent case access. It also identified interface friction: error screens that kept saying Loading, drafts lost on refresh or section changes, incomplete ARIA tabs, a composer shown too early and crowded staff navigation.
+The account-code/PIN model supports the access constraints I wanted to explore. It avoids depending on email or a phone number, but it does not solve account recovery. A name or birthday is not enough to recover someone's access in this demo.
 
-The implementation took place in `Projects/ping-tablet`, a separate copy of the untracked original `Projects/ping`. This preserved the earlier source instead of overwriting it or creating a worktree that would not contain untracked application files. Local dependencies were shared through a node_modules junction; secrets stayed in an ignored environment file.
+The exact reply preview gives consent a specific object: this text, for this request, with this disclosure. The backend checks that approval. Shelter sharing requires its own choice and a statement of current presence; the app labels it as self-reported rather than verified location.
 
-Before changes, the agent reran the **14 API tests and seven browser scenarios**. Windows sandbox restrictions blocked native bundler/browser helper operations on the first attempt; the same commands succeeded with elevated tool access. These were environment failures, not evidence that the application was broken.
+Assistance is similarly limited. A volunteer can claim a delivery task, but that claim should not quietly become permanent access to someone's account card or history. Task access expires or ends when released, completed, or canceled. Explicit local-case access remains a separate staff action.
 
-New API regressions first reproduced both identified defects. The staff login test hit 429 after repeated valid sign-ins. A fresh staff account with no pre-existing case grant could claim reply assistance and then read an account card. The fixes reset only a successful staff account's throttle and removed only the claim-time grant, preserving failed-login/IP protections and explicit case access.
+The shared-device design balances continuity with privacy. Drafts stay in memory during in-app refreshes and section changes, so ordinary navigation does not throw away someone's work. Logout, expiry, account changes, and a full page reload clear them. Private drafts are not saved in browser storage.
 
-The resulting interface has three home actions: **Check my pings**, **Request help finding someone**, and **Find a help desk**. Resident sections are **Messages for me** and **Requests I've made**. Reply opens the composer; an exact preview precedes Send; confirmation offers **Done—sign out**. Later shelter sharing is behind **Share a shelter (optional)**. Staff tasks use a vertical rail on wide screens and a wrapping grid on narrow screens. Existing case requests appear before the expandable new-request form. The help-desk list comes before the map on narrow screens.
+The help-desk directory has a complete text list alongside the map. A failed external map tile should not stop someone from reading the available desk information. The map shows fictional help desks, never residents.
 
-Data loading now distinguishes initial loading, refresh, error and empty states. Failed loads offer Retry. Editors remain mounted in memory across in-app refresh and section changes. Account changes invalidate in-flight responses and reset private state. The inactivity warning uses a keyboard-operable dialog and explains failed renewal without pretending the deadline moved.
+Children, unknown ages, and recorded consent concerns stay outside ordinary delivery and disclosure. The safeguarding panel demonstrates restricted referral acknowledgment. It does not implement a complete real-world safeguarding process.
 
-A fresh read-only AI reviewer found two additional issues: focus could be lost after canceling a private decision or returning from a shelter preview, and retained cases could keep an outdated assistance preference. Both were reproduced with browser regressions and fixed. Testing also added a sign-out pending screen so private content disappears immediately while the normal UI waits for the server attempt before handoff.
+## How I worked with AI
 
-That phase finished with **19 API tests, 22 Chromium scenarios and the build passing**, fresh screenshots and a working loopback-only preview. Those totals describe that checkpoint, not the expanded pass below.
+My approach was iterative. I supplied and refined the purpose and constraints, worked from an approved plan, reviewed the resulting direction, and asked for changes and broader verification. As the project became more concrete, the requests became more specific about behavior, scope, and evidence.
 
-## 5. Broader feature testing and documentation pass
+For example, the shared-tablet direction paired a simpler interface with explicit limits: preserve existing permissions, keep assistance access temporary, retain drafts only in memory, and make sign-out clear. That gave the agent a useful target and made it possible to check whether a redesign preserved the important behavior.
 
-After reviewing the implementation summary, I asked the agent to test the other features, review the whole project, fully explain the project in the README and prepare a process document that I could combine with my brainstorming chat. I said I would come back to publish it, so this pass did not publish, push or purchase hosting.
+I also asked for the reasoning to be documented. That made the collaboration more useful to me: I could trace the decisions and explain the product, instead of ending up with only a running app and a pile of generated files.
 
-The added feature checks exercise staff-created contact requests all the way through another desk to the recipient, incoming assistance claim/release/presentation, approved-reply assistance and preference revocation, safeguarding acknowledgments, failed staff-feed retries, and cross-tab sign-out/login. Additional API tests cover tampered and expired previews, wrong-action/resident tokens, one-time shelter disclosure, assigned safeguarding acknowledgment boundaries and sessions surviving application recreation against the same database. Application recreation is not the same as a physical database restart or a deployed-host restart test.
+The strongest part of my prompting was connecting the desired result to constraints and follow-up checks. I asked for the app to be built, then simplified, reviewed more broadly, tested, and explained. That kept the work moving while giving it a consistent standard.
 
-A second whole-project AI review found two more functional defects that were reproduced before fixes:
-
-1. **A newly shared shelter could be missed by an open assistance claim.** A volunteer could have fetched the earlier text, then mark it presented before the five-second poll noticed the new location. The task now requeues and invalidates an open claim when separately approved disclosure changes, forcing a fresh claim/read.
-2. **A locked tab retained an old CSRF token after another tab rotated the session cookie.** Its normal login form could fail until a reload. Cross-tab locking now refreshes public session metadata without restoring the private screen, including a notification after logout rotation completes.
-
-The reviewer also identified a real limit in safeguarding: the restricted projection lacked enough information to connect a referral to a person or external intake record. The UI now displays its existing referral UUID so entries can be distinguished, without broadening the API or adding cross-shelter profile access. Identity/intake linkage remains an explicitly documented limitation of the prototype. It is not described as fixed end-to-end or production-ready.
-
-This expanded pass finished on October 18 with **24 API tests and 28 Chromium scenarios passing**, a passing TypeScript/production build, and **zero known dependency vulnerabilities reported by `npm audit`**. This is local automated evidence, not a security certification. Actual shared-tablet hardware, screen readers, other browser engines and the public host remain unverified.
-
-The detailed results and remaining unverified environments are recorded in **`docs/verification.md`**. That file is the evidence source to use when preparing the final submission; do not copy a historical count and label it current.
-
-## 6. What I used AI for
-
-| Stage | AI contribution | My role / boundary |
+| Area | What I contributed | What AI contributed |
 |---|---|---|
-| Product planning | Helped structure the architecture, implementation order and tradeoffs | Supplied and refined goals, privacy constraints, scope and accepted direction |
-| Implementation | Wrote frontend, API, schema/seed, validation, session and workflow code | Requested the working application and preserved control over publication |
-| Testing | Wrote API and browser checks; ran them against real local PostgreSQL and Chromium | Requested verification rather than assuming the generated application worked |
-| Debugging | Used failing checks to identify defects, implement fixes and rerun checks | Asked for reliability, shared-device behavior and preservation of existing boundaries |
-| Interface iteration | Replaced the promotional home and simplified existing flows | Selected a simple task-focused home for tablets, phones and computers |
-| Review | Separate AI reviewer contexts examined code and returned findings | Requested broad review before returning to publish; AI review is not human certification |
-| Documentation | Expanded README, decision/verification notes and this handoff | Asked for a detailed explanation and transparent process/AI-use account |
-| Research context | Earlier plan referenced humanitarian services and GOV.UK interaction patterns | No claim that PING copied or validated a live service workflow; current REFUNITE mobile UI was not inspected |
+| Product direction | Purpose, privacy priorities, access constraints, scope, and refinements | Helped organize the requirements and explore implementation tradeoffs |
+| Planning | Approved the direction and kept the task bounded | Proposed architecture, implementation order, and verification steps |
+| Implementation | Directed the requested behavior and subsequent changes | Wrote substantial frontend, backend, database, session, and workflow code |
+| Interface | Selected the simpler task-focused experience and shared-device priorities | Implemented the revised screens, states, focus handling, and responsive layouts |
+| Quality | Requested broader feature testing and whole-project review before publication | Wrote and ran tests, reproduced failures, fixed defects, and performed separate AI reviews |
+| Documentation | Asked for purpose, rationale, and an honest development account | Drafted and revised the README, technical notes, and process documents |
+| Release | Signed in to hosting services and authorized publication | Configured the deployment, published the prepared source, and checked the live app |
 
-AI was not used inside the running product to classify residents, search a real population, infer identities, verify a shelter location or authorize reunification. No real personal data, field interviews or emergency deployment were part of these tests.
+AI was a substantial development tool throughout this project. It is not an identity-matching or decision-making feature inside PING. Staff review possible matches, residents make disclosure choices, and server rules enforce the workflow.
 
-## 7. How I prompted the agent
+## From first implementation to public demo
 
-The most useful pattern in the visible record is that the prompts included constraints and observable outcomes, not just a broad request to build an app. They specified privacy boundaries, retained features, known defects, intended screen behavior and tests that would demonstrate success.
+### Initial build — October 16
 
-### Exact excerpts available in this conversation
+The approved plan used React/Vite, TypeScript, an Express API, PostgreSQL, runtime validation, and a Leaflet help-desk map. A real backend and database mattered because permissions, persistence, and duplicate retries were central to the idea.
 
-The implementation handoff explicitly instructed:
+The initial implementation covered registration, account cards, resident login, matching, private delivery, reply previews, separate shelter consent, assistance, safeguarding restrictions, and isolated fictional demo workspaces.
 
-> “Implement the plan in a fresh context. Treat the plan as the source of user intent, re-read files as needed, and carry the work through implementation and verification.”
+The recorded checkpoint passed **14 API tests and seven Chromium scenarios** after fixes. Testing and AI review found problems including ambiguous demo identity lookup, failed account-card recovery, missing requester assistance, and a session-save race after logout. These findings showed why a complete-looking flow still needed closer inspection.
 
-The supplied plan established the interface direction:
+### Shared-tablet revision — October 18
 
-> “Replace the landing page with one simple, task-focused home on tablets, phones, and computers, as you selected. Keep existing features and permissions; no organization-admin system or new communication features.”
+The next pass preserved the original project in a separate working copy, reran the baseline, and reproduced the identified defects before changing the interface.
 
-It made reliability and consent concrete:
+Successful staff sign-ins had been counting toward an account throttle. Assistance claims could also create permanent case access. The fixes preserved failed-login and IP protections while removing the unintended claim-time grant. New tests used staff without existing case permission, so seeded access could not hide the problem.
 
-> “Remove automatic permanent case grants when staff claim an assistance task. Task access remains lease-bound; explicit, audited local-case access remains a separate existing permission. Preserve legitimate existing case grants.”
+The interface revision simplified the home and resident screens, made staff tasks visible across screen sizes, separated loading from errors and empty states, retained in-memory drafts, and improved keyboard focus and expiry warnings. A further AI review found focus and stale-preference issues, which also received regression tests.
 
-> “Retain drafts in memory across ordinary refresh and section changes. Clear all private state on logout, expiry, or account change. Never persist drafts on shared devices.”
+That checkpoint passed **19 API tests and 22 Chromium scenarios**, plus the build.
 
-> “After sending, show confirmation and Done—sign out. Put further shelter disclosure behind Share a shelter (optional).”
+### Broader review and release — October 18
 
-My later spoken request included these excerpts from the transcript:
+My request for broader testing added coverage of staff-created requests, assistance handoff, preference changes, safeguarding acknowledgments, failed loads, and cross-tab login. It caught an assistance update-ordering bug and stale session/CSRF state. The remaining safeguarding intake-linkage limitation was documented rather than presented as a complete operational feature.
 
-> “go ahead and test uh the other features, review everything”
+The expanded local checkpoint passed **24 API tests and 28 Chromium scenarios**. The local dependency audit reported zero known vulnerabilities at that time.
 
-> “Try to make the readme as detailed as possible and explain what the app is, what it does, its purpose, and why I chose to do it the way I did.”
+Publication added another useful verification environment. Linux CI exposed a login-form remount during background session renewal. Controlled tests also exposed a cross-tab logout timing problem, and repeat local startup revealed that the database helper needed to reuse an existing database cluster. Those issues were fixed; a registration test was corrected to wait for logout completion.
 
-> “make a summary of the process so far. Things that I use AI for, how I prompted you and stuff like that so I can put it into a chat that I have.”
+The final release CI passed **24 API tests, 29 Chromium scenarios, and the production build**. The agent then checked the deployed API and walked through the public browser flow. A Render service restart preserved a personal-device session and its approved reply and shelter data.
 
-These are available excerpts, not a complete prompt history. The earlier brainstorming chat should supply the original idea exploration, alternatives and exact original build prompt. Do not turn the retrospective descriptions in this document into fabricated quotations.
+The source is at [DavidG214/ping](https://github.com/DavidG214/ping), and the fictional demo is at [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com). The [verification record](verification.md) keeps the dated results and the limits of each check.
 
-### What the prompting achieved
+After publication, I asked for the example to be easier to follow while keeping the README in depth. I also asked for the live example to be run more than once with Playwright. The resulting public-site suite passed four checks, including the full reply and separate shelter flow in fresh desktop and tablet-sized sessions. That final pass helped connect the written instructions to what a reviewer would actually experience.
 
-The scoped plan prevented the redesign from becoming a new product. The explicit privacy constraints made it possible to test what must remain hidden, not just whether buttons worked. Asking for a fresh context and rereading files encouraged the agent to verify the actual implementation instead of trusting a previous summary. Asking for baseline tests distinguished older evidence from new results. Requesting broad review after the initial completion found ordering and cross-tab problems that the initial happy-path walkthrough did not expose.
+## What I take from the project
 
-## 8. What I would carry into the final reflection
+The part I am proud of is the consistency of the decisions. Access without a personal phone, recipient control, separate location consent, shared-device privacy, and a simpler interface all support the same purpose. I kept that purpose visible as the project moved through implementation, revisions, testing, and release.
 
-The project shows that a privacy-oriented interface depends on backend rules, not only on reassuring copy. “No shelter shared” needs a response serializer that actually omits it. “Sign out” needs revoked-session handling and a cleared private screen. “Retry” needs an operation identity so a committed write is not duplicated. “Volunteer help” needs authorization that ends when the task ends.
+I also think I used AI well by giving it direction and asking it to demonstrate the result. The generated code still needed debugging. The tests themselves sometimes needed correction. Review found things the first walkthrough missed. Continuing to ask for evidence helped turn an idea into a more defensible demo.
 
-It also shows why generated code still needs testing and review. Passing initial tests did not mean all feature combinations were correct. Later regressions found successful-login throttling, permanent access hidden by seeded permissions, draft loss, keyboard focus loss, stale preferences, an assistance content-update race and cross-tab CSRF state. Some initial failures were test assumptions or environment issues rather than product defects; those were corrected and not counted as application fixes.
+There is still a clear boundary around what I built. PING uses fictional data. It has not been validated through user interviews or field deployment. Actual shared-tablet hardware, screen readers, Safari/Firefox, disaster-scale load, and real safeguarding operations remain unverified. A successful web-service restart is not a database disaster-recovery test.
 
-The strongest evidence of progress is the working private contact cycle, the explicit restrictions and the repeatable test coverage. The weakest claims would be that the app verifies identity, solves real safeguarding, works offline, scales to disaster demand or has been validated by users. None of those claims is supported here.
+Within that scope, I took a sensitive problem, made deliberate product choices, used AI to implement and challenge those choices, and followed the project through to something another person can open and try.
 
-## 9. Review and submission handoff
+## Connecting this with my earlier brainstorming
 
-- Review the current local preview and the README/process wording, especially the first-person rationale.
-- Merge this implementation record with the original brainstorming chat and the actual application rubric.
-- Decide how to handle the known safeguarding intake-linkage gap before any operational use; the current panel is a limited fictional acknowledgment demonstration.
-- Test actual shared tablets/iPad keyboard behavior, screen readers, Safari/Firefox and printing if those claims matter to the submission.
-- Use the verified repository and live-demo links from the release addendum below. Keep host-specific checks and limitations in the final submission rather than treating local tests as evidence for every environment.
+This reflection covers the implementation history available in the repository and project conversation. My separate brainstorming chat can supply the earlier idea exploration, personal motivation, and alternatives. That chat and the full challenge rubric were not available when this account was drafted; this document does not reconstruct them or reproduce casual chat transcripts.
 
-The earlier stages above describe the pre-publication record. The release addendum below records the later publication; no paid hosting purchase, field study, formal security certification or production-readiness claim is part of the project.
+Useful supporting files:
 
-## 10. Release addendum — October 18
-
-After returning, I asked the agent to proceed and signed in to Render and Neon. The agent prepared the exact publication package and free-tier deployment settings, and asked for explicit approval to publish the files and store the database connection in Render. The source was published at [DavidG214/ping](https://github.com/DavidG214/ping); the fictional app is available at [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com).
-
-This final stage found issues that earlier passing tests had not exposed. Restarting local development revealed that the database helper always ran initialization instead of reusing an existing cluster; checking for `PG_VERSION` fixed repeat starts. The first Linux CI run then exposed a demo-login form remount during background session renewal. A controlled delayed-response regression reproduced it, and subscribing to React Router's location fixed the stale route key. A cross-tab timing test also showed that refreshing session metadata before logout completed could race cookie rotation. The agent separated immediate privacy locking from the post-rotation session refresh. It corrected a registration test that navigated away before staff logout finished.
-
-The resulting release CI passed **24 API tests, 29 Chromium scenarios and the production build**. The agent separately tested the deployed API's exact reply/location consent, duplicate retry handling, demo isolation and secure logout, and completed the Staff B → Jordan → Alex flow in the public browser. A Render service restart preserved the same personal-device session, approved reply and separately shared shelter. These are observed release checks, not a claim of field readiness. Outstanding device/accessibility checks and the distinction between a web-service restart and database disaster recovery are recorded in `docs/verification.md`.
-
-## Evidence files
-
-- `README.md`: project purpose, feature behavior, design rationale, architecture, setup and limits.
-- `docs/implementation-plan.md`: recorded October 16 plan and fixed decisions.
-- `docs/decisions.md`: implementation choices and earlier review fixes.
-- `docs/tablet-implementation.md`: the October 18 simplification ledger and its rulings.
-- `docs/verification.md`: dated checks, results, failure/fix evidence and unverified boundaries.
-- `docs/ai-use.md`: short AI-use timeline.
-- `docs/api.md` and `docs/staff-process.md`: access and restricted-process boundaries.
-- `tests/api.test.ts` and `tests/browser/`: executable checks behind the verification claims.
-- `docs/screenshots/`: captures from the actual local application, not design mockups.
+- [README](../README.md): purpose, walkthrough, design rationale, architecture, and setup.
+- [AI-use log](ai-use.md): shorter attribution and development timeline.
+- [Implementation plan](implementation-plan.md), [decision log](decisions.md), and [tablet implementation](tablet-implementation.md): recorded plans and changes.
+- [Verification](verification.md): observed results, fixes, and unverified environments.
+- [API notes](api.md) and [staff process](staff-process.md): permissions and workflow boundaries.
+- [API tests](../tests/api.test.ts) and [browser tests](../tests/browser/): executable checks.
