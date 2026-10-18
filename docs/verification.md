@@ -2,6 +2,10 @@
 
 ## October 18, 2026 — release preparation
 
+The source was published to `https://github.com/DavidG214/ping`. The first Linux CI run passed the build and API suite but failed one of 28 browser scenarios. Its trace exposed a login form remount during background session renewal: the route element read `window.location.search` without subscribing to route changes. The app now uses React Router's `useLocation`, and a controlled delayed-renewal regression reproduced the failure before the fix.
+
+The local release rerun also exposed a cross-tab ordering race: the first lock notification initiated a session read before logout completed its cookie rotation. Lock notifications now only clear private state; a distinct session-ready notification refreshes public session metadata after rotation. The existing cross-tab test now holds logout and asserts there is no premature session read; it failed before the fix and passed afterward. The registration browser test was corrected to await the completed staff sign-out screen before navigating to resident login, instead of aborting the logout request with immediate page navigation. Build passed; 28 browser scenarios passed together, followed by the corrected registration scenario passing separately. The next CI run will verify all 29 together.
+
 Returning to the local preview exposed a repeat-start defect in `scripts/local-db.ts`: it ran `initdb` even when the persistent cluster already existed. The failure was reproduced against the stopped local cluster. The helper now checks for `PG_VERSION` before initialization. Starting the corrected helper reused the existing PostgreSQL 18 cluster, brought both databases online and restored the browser home without resetting data. `npm run check` passed after this change. The API and browser totals below remain the earlier expanded-suite results; this release-preparation check does not represent a fresh full-suite run.
 
 The staged publication files were checked for excluded environment/database/dependency folders and common credential patterns. No matches were found; this bounded check is not a comprehensive secret-scanning certification.

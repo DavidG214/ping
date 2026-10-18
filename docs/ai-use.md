@@ -18,3 +18,7 @@ Codex added feature/browser and API boundary checks and requested a fresh read-o
 
 Codex expanded README and wrote `docs/process-handoff.md`, distinguishing visible exact prompt excerpts, historical project logs, interpretation of design rationale and missing original brainstorming/rubric context. The first-person passage is an AI-assisted draft for David's review, not a claim that Codex recovered his separate chat or personal experiences. No real user research, publication or paid services occurred.
 
+## October 18 release work
+
+David returned and authorized proceeding with the prepared publication after signing in to Render and Neon. Codex published the source repository, configured free-tier hosting, and used the first Linux CI failure to reproduce a session-renewal login-form remount. A subsequent controlled cross-tab test exposed premature session refresh during logout. Both timing defects received failing-then-passing regressions; a registration test was also corrected to wait for logout completion. Deployment and final CI results are tracked separately in `docs/verification.md`, rather than inferred from configuration alone.
+

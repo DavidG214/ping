@@ -49,7 +49,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       setSession(s);
       localStorage.removeItem("ping-locked");
       // The cookie has now rotated; other tabs must refresh their CSRF token.
-      channel.current?.postMessage("lock");
+      channel.current?.postMessage("session-ready");
     } catch {
       setError("Signed out on this device. Reconnect before signing in again.");
     } finally {
@@ -73,8 +73,14 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     void bootstrap();
     channel.current = new BroadcastChannel("ping-privacy");
-    channel.current.onmessage = async () => {
-      lock();
+    channel.current.onmessage = async (event) => {
+      if (event.data === "lock") {
+        // Clear immediately, but do not race a session read against logout's cookie rotation.
+        lock();
+        return;
+      }
+      if (event.data !== "session-ready") return;
+      if (current.current.actor) lock();
       try {
         const s = await api<SessionInfo>("/session");
         // Learn only public session metadata. A remote login never opens this tab's private UI.
@@ -188,7 +194,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           clearPrivateRequests();
           current.current = s;
           setGeneration((v) => v + 1);
-          channel.current?.postMessage("lock");
+          channel.current?.postMessage("session-ready");
           setSession(s);
           setError("");
         },

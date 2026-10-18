@@ -34,14 +34,12 @@ async function login(page: Page, who: string, help = false) {
 }
 async function routeJordan(page: Page) {
   await role(page, "Staff B");
-  const card = page
-    .locator("article")
-    .filter({
-      has: page.getByRole("heading", {
-        name: "Looking for Jordan Rivera",
-        exact: true,
-      }),
-    });
+  const card = page.locator("article").filter({
+    has: page.getByRole("heading", {
+      name: "Looking for Jordan Rivera",
+      exact: true,
+    }),
+  });
   await card
     .getByLabel("Compare a local candidate")
     .selectOption({ label: "Jordan Rivera · 30–44" });
@@ -50,6 +48,43 @@ async function routeJordan(page: Page) {
     page.getByRole("status").filter({ hasText: "Request is now available" }),
   ).toBeVisible();
 }
+
+test("background session renewal preserves the demo login choices", async ({
+  page,
+}) => {
+  await start(page);
+  await role(page, "Staff B");
+  await page.goto("/demo");
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  await page.route("**/api/session/activity", async (route) => {
+    await gate;
+    await route.continue();
+  });
+  const renewal = page.waitForRequest("**/api/session/activity");
+  await page.getByRole("link", { name: "Sign in as Jordan" }).click();
+  await renewal;
+  await expect(page.getByLabel("Six-digit PIN")).toHaveValue("001234");
+  await page.getByLabel("Yes, this device is shared").check();
+  await page.getByLabel("I’ll check PING myself").check();
+  const renewed = page.waitForResponse("**/api/session/activity");
+  release();
+  await renewed;
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        requestAnimationFrame(() => requestAnimationFrame(() => resolve()));
+      }),
+  );
+  await expect(page.getByLabel("Yes, this device is shared")).toBeChecked();
+  await expect(page.getByLabel("I’ll check PING myself")).toBeChecked();
+  await page.getByRole("button", { name: "Open my pings" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Hello, Jordan Rivera." }),
+  ).toBeVisible();
+});
 
 test("staff creates a contact request, another shelter routes it, and recipient sees exactly the approved message", async ({
   page,
@@ -74,13 +109,11 @@ test("staff creates a contact request, another shelter routes it, and recipient 
     page.getByRole("heading", { name: "Looking for Jordan browser intake" }),
   ).toBeVisible();
   await role(page, "Staff B");
-  const card = page
-    .locator("article")
-    .filter({
-      has: page.getByRole("heading", {
-        name: "Looking for Jordan browser intake",
-      }),
-    });
+  const card = page.locator("article").filter({
+    has: page.getByRole("heading", {
+      name: "Looking for Jordan browser intake",
+    }),
+  });
   await card
     .getByLabel("Compare a local candidate")
     .selectOption({ label: "Jordan Rivera · 30–44" });
@@ -124,14 +157,12 @@ test("incoming assistance can be claimed, released and presented without sending
   ).toBeVisible();
   await login(page, "Alex");
   await page.getByRole("button", { name: /Requests I’ve made/ }).click();
-  const card = page
-    .locator("article")
-    .filter({
-      has: page.getByRole("heading", {
-        name: "Looking for Jordan Rivera",
-        exact: true,
-      }),
-    });
+  const card = page.locator("article").filter({
+    has: page.getByRole("heading", {
+      name: "Looking for Jordan Rivera",
+      exact: true,
+    }),
+  });
   await expect(card).toContainText("Waiting for a response");
 });
 
@@ -259,7 +290,28 @@ test("another tab can sign in after cross-tab logout without reloading or exposi
   await expect(
     second.getByRole("heading", { name: "Hello, Sam Chen." }),
   ).toBeVisible();
+  let releaseLogout!: () => void;
+  let logoutReleased = false;
+  let prematureRefreshes = 0;
+  const logoutGate = new Promise<void>((resolve) => {
+    releaseLogout = resolve;
+  });
+  await page.route("**/api/auth/logout", async (route) => {
+    await logoutGate;
+    await route.continue();
+  });
+  second.on("request", (request) => {
+    if (new URL(request.url()).pathname === "/api/session" && !logoutReleased)
+      prematureRefreshes++;
+  });
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  try {
+    await expect(second.getByLabel("Six-digit PIN")).toBeVisible();
+    expect(prematureRefreshes).toBe(0);
+  } finally {
+    logoutReleased = true;
+    releaseLogout();
+  }
   await expect(page.getByLabel("Six-digit PIN")).toBeVisible();
   await expect(second.getByLabel("Six-digit PIN")).toBeVisible();
   await expect(

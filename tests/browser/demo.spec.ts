@@ -150,6 +150,9 @@ test("registration preserves a leading-zero PIN and prints only the code", async
   await expect(page.locator(".account-card")).not.toContainText("001234");
   const code = await page.locator(".account-card .account-code").innerText();
   await page.getByRole("button", { name: "Sign out", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "Staff sign in" }),
+  ).toBeVisible();
   await page.goto("/login");
   await page.getByLabel("Account code").fill(code);
   await page.getByLabel("Six-digit PIN").fill("001234");

@@ -6,6 +6,7 @@ import {
   Route,
   Navigate,
   useNavigate,
+  useLocation,
   useSearchParams,
 } from "react-router-dom";
 import { api } from "./api";
@@ -17,6 +18,7 @@ import { StaffDashboard } from "./Staff";
 const Directory = lazy(() => import("./Directory"));
 export function App() {
   const { session, logout } = useSession();
+  const location = useLocation();
   const [online, setOnline] = useState(navigator.onLine);
   useEffect(() => {
     const change = () => setOnline(navigator.onLine);
@@ -79,10 +81,7 @@ export function App() {
               </Suspense>
             }
           />
-          <Route
-            path="/login"
-            element={<Login key={window.location.search} />}
-          />
+          <Route path="/login" element={<Login key={location.search} />} />
           <Route path="/help" element={<Help />} />
           <Route path="/demo" element={<Demo />} />
           <Route
