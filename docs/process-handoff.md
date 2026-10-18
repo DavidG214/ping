@@ -163,15 +163,23 @@ It also shows why generated code still needs testing and review. Passing initial
 
 The strongest evidence of progress is the working private contact cycle, the explicit restrictions and the repeatable test coverage. The weakest claims would be that the app verifies identity, solves real safeguarding, works offline, scales to disaster demand or has been validated by users. None of those claims is supported here.
 
-## 9. Remaining work and publication status
+## 9. Review and submission handoff
 
 - Review the current local preview and the README/process wording, especially the first-person rationale.
 - Merge this implementation record with the original brainstorming chat and the actual application rubric.
 - Decide how to handle the known safeguarding intake-linkage gap before any operational use; the current panel is a limited fictional acknowledgment demonstration.
 - Test actual shared tablets/iPad keyboard behavior, screen readers, Safari/Firefox and printing if those claims matter to the submission.
-- Publish only after review. Verify the real repository, CI run, public host, TLS/cookies, cold start and persistence before adding actual URLs or public success claims.
+- Use the verified repository and live-demo links from the release addendum below. Keep host-specific checks and limitations in the final submission rather than treating local tests as evidence for every environment.
 
-No public release, hosting purchase, field study, formal security certification or production-readiness claim is part of this record.
+The earlier stages above describe the pre-publication record. The release addendum below records the later publication; no paid hosting purchase, field study, formal security certification or production-readiness claim is part of the project.
+
+## 10. Release addendum — October 18
+
+After returning, I asked the agent to proceed and signed in to Render and Neon. The agent prepared the exact publication package and free-tier deployment settings, and asked for explicit approval to publish the files and store the database connection in Render. The source was published at [DavidG214/ping](https://github.com/DavidG214/ping); the fictional app is available at [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com).
+
+This final stage found issues that earlier passing tests had not exposed. Restarting local development revealed that the database helper always ran initialization instead of reusing an existing cluster; checking for `PG_VERSION` fixed repeat starts. The first Linux CI run then exposed a demo-login form remount during background session renewal. A controlled delayed-response regression reproduced it, and subscribing to React Router's location fixed the stale route key. A cross-tab timing test also showed that refreshing session metadata before logout completed could race cookie rotation. The agent separated immediate privacy locking from the post-rotation session refresh. It corrected a registration test that navigated away before staff logout finished.
+
+The resulting release CI passed **24 API tests, 29 Chromium scenarios and the production build**. The agent separately tested the deployed API's exact reply/location consent, duplicate retry handling, demo isolation and secure logout, and completed the Staff B → Jordan → Alex flow in the public browser. A Render service restart preserved the same personal-device session, approved reply and separately shared shelter. These are observed release checks, not a claim of field readiness. Outstanding device/accessibility checks and the distinction between a web-service restart and database disaster recovery are recorded in `docs/verification.md`.
 
 ## Evidence files
 

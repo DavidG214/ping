@@ -1,5 +1,21 @@
 # Verification evidence
 
+## October 18, 2026 — public release (latest)
+
+- **Live app:** [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com).
+- **Public source:** [DavidG214/ping](https://github.com/DavidG214/ping).
+- **Deployed application:** `a7e3adb2dedbe1b0404a39b0f8321c305339aa14`; Render deployment `dep-dbah4pvbtjjs73f59ho0` became live at 2:40 PM EDT. Later documentation-only commits do not change the deployed application code.
+- **Linux CI:** [run 39155143319](https://github.com/DavidG214/ping/actions/runs/39155143319) passed installation, production build, **24 API tests and all 29 Chromium scenarios** together against its dedicated PostgreSQL test service.
+- **Hosting:** Render Free and Neon Free, both in Ohio. Migrations applied successfully. Auto-deploy is off; future code updates require a manual deployment after checks.
+
+Public-host HTTP checks used newly created fictional workspaces and verified health, three directory entries, `__Host-ping` cookies with Secure/HttpOnly/SameSite=Strict, private-response `Cache-Control: no-store`, exact reply content with no location, duplicate-send idempotency, separate location consent/current-presence enforcement, cross-workspace access denial, independent demo reset, and denial of logged-out/stale sessions. No production test invoked the test database reset or imported local records.
+
+The public Chrome UI was also exercised from a fresh demo through Staff B's candidate routing, Jordan's two independent unselected login choices, reply composer, exact preview, explicit Send, reply confirmation/optional shelter control, and Alex's outgoing request showing the approved text with no shelter. After shared-device expiry, the browser returned to an empty login form.
+
+**Restart persistence passed:** Render recorded “Service restarted by you” at 2:43 PM EDT. The same pre-restart personal-device API session remained authenticated afterward, and its saved reply and separately approved shelter were unchanged. This verifies a web-service restart against Neon, not a database-server crash or disaster-recovery exercise.
+
+Remaining unverified: actual iPad/shared-tablet hardware, Safari/Firefox, screen readers, physical printing, load, idle-host cold-start timing, Neon crash/recovery and operational safeguarding/intake linkage. The free-host wake-up warning is Render's displayed behavior, not a measured cold-start benchmark. Local dependency audit earlier on October 18 reported zero known vulnerabilities; that is not a security certification.
+
 ## October 18, 2026 — release preparation
 
 The source was published to `https://github.com/DavidG214/ping`. The first Linux CI run passed the build and API suite but failed one of 28 browser scenarios. Its trace exposed a login form remount during background session renewal: the route element read `window.location.search` without subscribing to route changes. The app now uses React Router's `useLocation`, and a controlled delayed-renewal regression reproduced the failure before the fix.
@@ -10,7 +26,7 @@ Returning to the local preview exposed a repeat-start defect in `scripts/local-d
 
 The staged publication files were checked for excluded environment/database/dependency folders and common credential patterns. No matches were found; this bounded check is not a comprehensive secret-scanning certification.
 
-## October 18, 2026 — expanded feature review (latest)
+## October 18, 2026 — expanded feature review (historical checkpoint)
 
 After the tablet implementation checkpoint below, David requested broader feature testing, a whole-project review, a detailed README and a process handoff. The latest checks ran against the dedicated local `ping_test` database, sequentially:
 

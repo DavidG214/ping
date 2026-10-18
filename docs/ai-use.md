@@ -22,3 +22,5 @@ Codex expanded README and wrote `docs/process-handoff.md`, distinguishing visibl
 
 David returned and authorized proceeding with the prepared publication after signing in to Render and Neon. Codex published the source repository, configured free-tier hosting, and used the first Linux CI failure to reproduce a session-renewal login-form remount. A subsequent controlled cross-tab test exposed premature session refresh during logout. Both timing defects received failing-then-passing regressions; a registration test was also corrected to wait for logout completion. Deployment and final CI results are tracked separately in `docs/verification.md`, rather than inferred from configuration alone.
 
+Final observed release checks: Linux CI passed 24 API tests, 29 Chromium scenarios and the build. The public Render app passed API consent/isolation/session checks and a Chrome Staff B → Jordan → Alex reply walkthrough. A deliberate Render service restart preserved a personal-device session and its approved reply/location data. Both hosting services remained on their Free plans; actual shared-tablet hardware and screen readers were not tested.
+

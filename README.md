@@ -4,9 +4,9 @@ PING is a fictional, consent-first contact-request prototype for the **DALI Full
 
 The central question is: **How can someone ask whether another person is safe while leaving that person in control of whether to respond and what to reveal?** PING explores that question through a working browser application with a real database, resident accounts, staff-assisted intake, private messages and explicit consent. AI is used in the development process; it does not identify people, decide matches or approve disclosures in the app.
 
-**Live URL:** not deployed yet. Render/Neon access and publication review are pending. No public URL has been verified.
+**Live demo:** [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com). Select **Try the demo → Start my demo** to create your own fictional workspace. The free Render instance sleeps when idle; its first response may take 50 seconds or more.
 
-**Repository:** [DavidG214/ping](https://github.com/DavidG214/ping). The public source repository is separate from the hosted application; a live deployment remains pending.
+**Repository:** [DavidG214/ping](https://github.com/DavidG214/ping). [Verified release CI](https://github.com/DavidG214/ping/actions/runs/39155143319) passed on October 18, 2026.
 
 **Current working copy:** `Projects/ping-tablet`; the earlier `Projects/ping` source is preserved. The latest interface has a three-action home, compact resident flow, four staff tasks and a list-first help-desk directory. This is an educational fictional-data prototype, not a deployed emergency service.
 
@@ -277,7 +277,7 @@ The supplied migrations mark the database as demo-only. Turning demo mode off is
 
 ### Checks
 
-Latest local verification on **October 18, 2026**: **24 PostgreSQL API tests**, **28 Chromium browser scenarios**, and the complete build passed. `npm audit` reported **zero known vulnerabilities**. These counts include the later full-feature review, not only the earlier tablet-layout pass. [Detailed evidence and remaining limits](docs/verification.md) records what each stage actually exercised.
+Latest release verification on **October 18, 2026**: Linux GitHub Actions passed **24 PostgreSQL API tests**, **29 Chromium browser scenarios**, and the complete build. The earlier local `npm audit` reported **zero known vulnerabilities**. Public-host checks also exercised the consent flow, isolated demo workspaces and secure session behavior. [Detailed evidence and remaining limits](docs/verification.md) records what each stage actually exercised.
 
 ```sh
 npm run check
@@ -288,7 +288,7 @@ npm run test:e2e
 npm audit
 ```
 
-Run API and browser suites sequentially: they share the dedicated test database. Browser tests start an isolated server on port 41937 and use the compiled frontend; build before running them. GitHub Actions runs the checks with a PostgreSQL service. That workflow must be observed on GitHub after publication; local success is not a claim that CI ran.
+Run API and browser suites sequentially: they share the dedicated test database. Browser tests start an isolated server on port 41937 and use the compiled frontend; build before running them. GitHub Actions runs these checks with a PostgreSQL service; the linked release run above was observed passing on GitHub.
 
 On Windows, use `npm.cmd` and `npx.cmd` if PowerShell blocks the `.ps1` wrappers. The current preserved-copy setup shares installed dependencies with `../ping` through a local junction. A standalone checkout should install its own dependencies with `npm ci --include=dev`. Never copy `.env`, local PostgreSQL data, test artifacts or a dependency junction into a public repository.
 
@@ -310,4 +310,4 @@ David supplied product decisions and the detailed privacy-first brief. Codex hel
 
 The [process handoff](docs/process-handoff.md) is a longer account for combining with the original brainstorming chat. It includes a draft first-person project explanation, the recorded development timeline, available prompt excerpts, AI contributions, test-driven fixes and remaining work. It explicitly marks the missing original chat/rubric rather than reconstructing them as facts.
 
-This is an educational prototype, not a production disaster-response system. It depends on honest staff intake, shared-device discipline, connectivity, database access and limited free hosting. Safeguarding and recovery require an organization's restricted human process. Public deployment, real-device checks, and public GitHub CI remain unverified until explicitly recorded otherwise.
+This is an educational prototype, not a production disaster-response system. It depends on honest staff intake, shared-device discipline, connectivity, database access and limited free hosting. Safeguarding and recovery require an organization's restricted human process. The public deployment and release CI were checked; actual shared tablets, Safari/Firefox, screen readers, real-world safeguarding and disaster-scale demand remain unverified.

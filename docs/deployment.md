@@ -1,6 +1,8 @@
 # Deployment handoff
 
-Status: the public source repository is [DavidG214/ping](https://github.com/DavidG214/ping). No verified public application deployment yet. No paid service has been enabled.
+Status: the public source repository is [DavidG214/ping](https://github.com/DavidG214/ping), and the verified fictional demo is [ping-davidg214.onrender.com](https://ping-davidg214.onrender.com). Both Render and Neon are on their Free plans. No paid service has been enabled.
+
+The initial deployed application commit is `a7e3adb2dedbe1b0404a39b0f8321c305339aa14`. Render service `ping-davidg214` runs in Ohio with Node 24.16.0 and uses the dedicated Neon PING project in AWS US East 2. Its `DATABASE_URL` uses the direct endpoint with `sslmode=verify-full`; migrations use a session advisory lock, so this deployment does not use a transaction-pooled endpoint. Production session/PIN secrets were generated separately from local development secrets. Auto-deploy is **Off**: after reviewing a future change and checking CI, use **Manual Deploy → Deploy latest commit** in Render. See [verification evidence](verification.md) for observed checks and remaining limits.
 
 ## Required access
 
